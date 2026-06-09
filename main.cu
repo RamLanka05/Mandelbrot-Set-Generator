@@ -4,10 +4,23 @@
 #include <fstream>
 using namespace std;
 
-const int WIDTH = 1200;
-const int HEIGHT = 900;
+// 900p
+// const int WIDTH = 1200;
+// const int HEIGHT = 900;
 
-__global__ void mandelbrotKernel(int* data, int width, int height)
+// 4K
+const int WIDTH = 3840;
+const int HEIGHT = 2160;
+
+// __constant__ double d_palette[5][3] = {
+//     { 0,   7,   100 },
+//     { 32,  107, 203 },
+//     { 237, 255, 255 },
+//     { 255, 170, 0   },
+//     { 0,   2,   0   }
+// };
+
+__global__ void mandelbrotKernel(unsigned char* data, int width, int height)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -28,51 +41,67 @@ __global__ void mandelbrotKernel(int* data, int width, int height)
         ++iters;
     }
 
-    int pixel_index = (y * width + x) * 3;
+int pixel_index = (y * width + x) * 3;
 
     if (iters == 1000) {
-        data[pixel_index] = 0;         // R
-        data[pixel_index + 1] = 0;     // G
-        data[pixel_index + 2] = 0;     // B
+        // Core is still perfectly crisp black
+        data[pixel_index]     = 0;
+        data[pixel_index + 1] = 0;
+        data[pixel_index + 2] = 0;
     } else {
-        data[pixel_index] = (iters * 5) % 256;         // R
-        data[pixel_index + 1] = (iters * 2) % 256;     // G
-        data[pixel_index + 2] = (iters * 11) % 256;    // B
+        // --- CUSTOM GRADIENT PALETTE ---
+        // Define an array of colors you want to cycle through (R, G, B)
+        const int NUM_COLORS = 5;
+        const double d_palette[5][3] = {
+            { 15,   0,   30  },  // 0. Dark Void Purple
+            { 75,   0,   130 },  // 1. Deep Indigo
+            { 180,  40,  255 },  // 2. Vibrant Violet
+            { 255,  200, 255 },  // 3. Starlight Pink/White
+            { 5,    0,   15  }   // 4. Near Black
+        };
+        double mu = (double)iters / 100.0; 
+        
+        // Wrap around smoothly using the fractional part
+        int color1_idx = ((int)mu) % NUM_COLORS;
+        int color2_idx = (color1_idx + 1) % NUM_COLORS;
+        double t = mu - (int)mu; // How far we are between color1 and color2 (0.0 to 1.0)
+
+        // Linear interpolation (lerp) formula: A + t * (B - A)
+        data[pixel_index]     = (unsigned char)(d_palette[color1_idx][0] + t * (d_palette[color2_idx][0] - d_palette[color1_idx][0])); // R
+        data[pixel_index + 1] = (unsigned char)(d_palette[color1_idx][1] + t * (d_palette[color2_idx][1] - d_palette[color1_idx][1])); // G
+        data[pixel_index + 2] = (unsigned char)(d_palette[color1_idx][2] + t * (d_palette[color2_idx][2] - d_palette[color1_idx][2])); // B
     }
 }
 
 
 int main()
 {
-    ofstream img("mandelbrot.ppm");
     int total_pixels = WIDTH * HEIGHT;
     int num_elements = total_pixels * 3;
-    size_t bytes = num_elements * sizeof(int);
+    size_t bytes = num_elements * sizeof(unsigned char);
 
-    int* data = new int[num_elements];
-
-    int* d_data;
+    unsigned char* data = new unsigned char[num_elements];
+    unsigned char* d_data;
     cudaMalloc((void**)&d_data, bytes);
 
     dim3 blockSize(16, 16);
     dim3 gridSize((WIDTH + blockSize.x - 1) / blockSize.x, 
-                (HEIGHT + blockSize.y - 1) / blockSize.y);
+                  (HEIGHT + blockSize.y - 1) / blockSize.y);
 
     mandelbrotKernel<<<gridSize, blockSize>>>(d_data, WIDTH, HEIGHT);
     cudaDeviceSynchronize();
     cudaMemcpy(data, d_data, bytes, cudaMemcpyDeviceToHost);
-    
-    img << "P3\n" << WIDTH << " " << HEIGHT << "\n255\n";
-    
-    for (int i = 0; i < num_elements; i += 3) {
-        img << data[i] << " " << data[i+1] << " " << data[i+2] << "\n";
-    }
 
+    ofstream img("mandelbrot.ppm", ios::out | ios::binary);
+
+    img << "P6\n" << WIDTH << " " << HEIGHT << "\n255\n";
+    img.write(reinterpret_cast<char*>(data), bytes);
     img.close();
+
     delete[] data;
     cudaFree(d_data);
     
-    cout << "Mandelbrot set generated successfully!" << endl;
+    cout << "Mandelbrot set generated successfully with smooth gradients!" << endl;
     
     return 0;
 }
