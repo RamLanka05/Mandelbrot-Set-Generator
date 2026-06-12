@@ -15,3 +15,27 @@ This project renders high-resolution images of the Mandelbrot set by mapping pix
 * C++ Compiler (MSVC, GCC, or Clang)
 * [NVIDIA CUDA Toolkit](https://developer.nvidia.com/cuda-toolkit)
 * A CUDA-capable NVIDIA GPU
+
+## Usage
+
+This project is compiled using the NVIDIA CUDA Compiler (`nvcc`).
+
+
+1. Clone the repository and navigate to the project directory:
+```bash
+    git clone [https://github.com/yourusername/Mandelbrot-Set-Generator.git](https://github.com/yourusername/Mandelbrot-Set-Generator.git
+    cd Mandelbrot-Set-Generator
+```
+
+2. Compile and run the CUDA source file:
+```bash
+    nvcc main.cu -o main.exe | .\main.exe
+```
+
+This command will output a mandelbrot.ppm file which will have the compiled mandelbrot set.
+
+## Future Roadmap
+
+* **Real-Time Interactive Viewer:** Transition from a static batch-renderer to a live, navigable application. By leveraging **GLFW** and **CUDA-OpenGL Interoperability**, the CUDA kernel will write pixel data directly to an OpenGL texture on the VRAM, bypassing the CPU entirely to enable 60+ FPS panning and deep-zooming.
+* **Continuous Color Smoothing:** Upgrade the discrete integer escape loop to a fractional escape algorithm (normalized iteration count). Utilizing the logarithm of the complex magnitude will eliminate stepped color banding and produce mathematically seamless gradient transitions.
+* **Supersampling Anti-Aliasing (SSAA):** Implement a sub-pixel sampling architecture within the CUDA kernel. By calculating and averaging multiple offset coordinates per pixel, the renderer will eliminate jagged artifacts and deliver ultra-crisp, textbook-quality image fidelity.
