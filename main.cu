@@ -4,21 +4,11 @@
 #include <fstream>
 using namespace std;
 
-// 900p
-// const int WIDTH = 1200;
-// const int HEIGHT = 900;
 
 // 4K
 const int WIDTH = 3840;
 const int HEIGHT = 2160;
 
-// __constant__ double d_palette[5][3] = {
-//     { 0,   7,   100 },
-//     { 32,  107, 203 },
-//     { 237, 255, 255 },
-//     { 255, 170, 0   },
-//     { 0,   2,   0   }
-// };
 
 __global__ void mandelbrotKernel(unsigned char* data, int width, int height)
 {
