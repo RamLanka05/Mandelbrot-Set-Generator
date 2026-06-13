@@ -4,7 +4,6 @@
 #include <fstream>
 using namespace std;
 
-
 // 4K
 const int WIDTH = 3840;
 const int HEIGHT = 2160;
@@ -42,13 +41,23 @@ int pixel_index = (y * width + x) * 3;
         // --- CUSTOM GRADIENT PALETTE ---
         // Define an array of colors you want to cycle through (R, G, B)
         const int NUM_COLORS = 5;
-        const double d_palette[5][3] = {
+        const double purple_palette[5][3] = {
             { 15,   0,   30  },  // 0. Dark Void Purple
             { 75,   0,   130 },  // 1. Deep Indigo
             { 180,  40,  255 },  // 2. Vibrant Violet
             { 255,  200, 255 },  // 3. Starlight Pink/White
             { 5,    0,   15  }   // 4. Near Black
         };
+        
+
+        const double bgp_palette[5][3] = {
+            { 10,   25,  90  },  // 0. Deep Blue
+            { 0,    120, 180 },  // 1. Ocean Teal
+            { 40,   200, 120 },  // 2. Bright Green
+            { 120,  90,  220 },  // 3. Soft Purple
+            { 10,   15,  45  }   // 4. Midnight Blue
+        };
+
         double mu = (double)iters / 100.0; 
         
         // Wrap around smoothly using the fractional part
@@ -57,9 +66,9 @@ int pixel_index = (y * width + x) * 3;
         double t = mu - (int)mu; // How far we are between color1 and color2 (0.0 to 1.0)
 
         // Linear interpolation (lerp) formula: A + t * (B - A)
-        data[pixel_index]     = (unsigned char)(d_palette[color1_idx][0] + t * (d_palette[color2_idx][0] - d_palette[color1_idx][0])); // R
-        data[pixel_index + 1] = (unsigned char)(d_palette[color1_idx][1] + t * (d_palette[color2_idx][1] - d_palette[color1_idx][1])); // G
-        data[pixel_index + 2] = (unsigned char)(d_palette[color1_idx][2] + t * (d_palette[color2_idx][2] - d_palette[color1_idx][2])); // B
+        data[pixel_index]     = (unsigned char)(purple_palette[color1_idx][0] + t * (purple_palette[color2_idx][0] - purple_palette[color1_idx][0])); // R
+        data[pixel_index + 1] = (unsigned char)(purple_palette[color1_idx][1] + t * (purple_palette[color2_idx][1] - purple_palette[color1_idx][1])); // G
+        data[pixel_index + 2] = (unsigned char)(purple_palette[color1_idx][2] + t * (purple_palette[color2_idx][2] - purple_palette[color1_idx][2])); // B
     }
 }
 
