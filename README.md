@@ -39,3 +39,11 @@ This command will output a mandelbrot.ppm file which will have the compiled mand
 * **Real-Time Interactive Viewer:** Transition from a static batch-renderer to a live, navigable application. By leveraging **GLFW** and **CUDA-OpenGL Interoperability**, the CUDA kernel will write pixel data directly to an OpenGL texture on the VRAM, bypassing the CPU entirely to enable 60+ FPS panning and deep-zooming.
 * **Continuous Color Smoothing:** Upgrade the discrete integer escape loop to a fractional escape algorithm (normalized iteration count). Utilizing the logarithm of the complex magnitude will eliminate stepped color banding and produce mathematically seamless gradient transitions.
 * **Supersampling Anti-Aliasing (SSAA):** Implement a sub-pixel sampling architecture within the CUDA kernel. By calculating and averaging multiple offset coordinates per pixel, the renderer will eliminate jagged artifacts and deliver ultra-crisp, textbook-quality image fidelity.
+
+## Author
+
+### Sathvik Ram Lanka
+
+- **GitHub:** [@RamLanka05](https://github.com/RamLanka05)
+- **LinkedIn:** [Sathvik Ram Lanka](https://www.linkedin.com/in/sathvik-r-lanka/)
+- **Affiliation:** Statistics & Computer Science, University of Illinois Urbana-Champaign
