@@ -66,9 +66,9 @@ int pixel_index = (y * width + x) * 3;
         double t = mu - (int)mu; // How far we are between color1 and color2 (0.0 to 1.0)
 
         // Linear interpolation (lerp) formula: A + t * (B - A)
-        data[pixel_index]     = (unsigned char)(purple_palette[color1_idx][0] + t * (purple_palette[color2_idx][0] - purple_palette[color1_idx][0])); // R
-        data[pixel_index + 1] = (unsigned char)(purple_palette[color1_idx][1] + t * (purple_palette[color2_idx][1] - purple_palette[color1_idx][1])); // G
-        data[pixel_index + 2] = (unsigned char)(purple_palette[color1_idx][2] + t * (purple_palette[color2_idx][2] - purple_palette[color1_idx][2])); // B
+        data[pixel_index]     = (unsigned char)(bgp_palette[color1_idx][0] + t * (bgp_palette[color2_idx][0] - bgp_palette[color1_idx][0])); // R
+        data[pixel_index + 1] = (unsigned char)(bgp_palette[color1_idx][1] + t * (bgp_palette[color2_idx][1] - bgp_palette[color1_idx][1])); // G
+        data[pixel_index + 2] = (unsigned char)(bgp_palette[color1_idx][2] + t * (bgp_palette[color2_idx][2] - bgp_palette[color1_idx][2])); // B
     }
 }
 
