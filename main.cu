@@ -51,11 +51,11 @@ int pixel_index = (y * width + x) * 3;
         
 
         const double bgp_palette[5][3] = {
-            { 10,   25,  90  },  // 0. Deep Blue
-            { 0,    120, 180 },  // 1. Ocean Teal
-            { 40,   200, 120 },  // 2. Bright Green
-            { 120,  90,  220 },  // 3. Soft Purple
-            { 10,   15,  45  }   // 4. Midnight Blue
+            { 0,   180, 140 },  // 0. Vibrant Tealish Green
+            { 10,  90,  220 },  // 1. Bright Royal Blue
+            { 130, 40,  240 },  // 2. Electric Purple
+            { 210, 130, 255 },  // 3. Soft Lavender / Pastel Violet
+            { 5,   10,  30  }   // 4. Midnight Navy (Wraps cleanly back to 0)
         };
 
         double mu = (double)iters / 100.0; 
