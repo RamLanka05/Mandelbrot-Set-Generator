@@ -2,6 +2,7 @@
 //
 #include <iostream>
 #include <fstream>
+#include <cmath>
 using namespace std;
 
 // 4K
@@ -9,7 +10,7 @@ const int WIDTH = 3840;
 const int HEIGHT = 2160;
 
 
-__global__ void mandelbrotKernel(unsigned char* data, int width, int height)
+__global__ void mandelbrotKernel(unsigned char* data, int width, int height, double centerX, double centerY, double zoom)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -19,10 +20,10 @@ __global__ void mandelbrotKernel(unsigned char* data, int width, int height)
     double zx, zy, cX, cY;
     int iters = 0;
     zx = zy = 0;
-    cX = (-2.0 + ((double)x / width) * 3.0);
-    cY = (-1.5 + ((double)y / height) * 3.0);
+    cX = centerX + (x - width / 2.0) * (zoom / width);
+    cY = centerY + (y - height / 2.0) * (zoom / width);
 
-    while ((zx * zx) + (zy * zy) < 4.0 && iters < 1000)
+    while ((zx * zx) + (zy * zy) < 16.0 && iters < 1000)
     {
         double curr = zx * zx - zy * zy + cX;
         zy = 2 * zx * zy + cY;
@@ -30,7 +31,7 @@ __global__ void mandelbrotKernel(unsigned char* data, int width, int height)
         ++iters;
     }
 
-int pixel_index = (y * width + x) * 3;
+    int pixel_index = (y * width + x) * 3;
 
     if (iters == 1000) {
         // Core is still perfectly crisp black
@@ -58,12 +59,18 @@ int pixel_index = (y * width + x) * 3;
             { 5,   10,  30  }   // 4. Midnight Navy (Wraps cleanly back to 0)
         };
 
-        double mu = (double)iters / 100.0; 
+        // 1. Calculate continuous smooth iterations
+        double mag = sqrt(zx * zx + zy * zy);
+        double nu = log(log(mag) / log(2.0)) / log(2.0);
+        double smooth_iters = (double)iters + 1.0 - nu;
+
+        // 2. Derive our scaled color position (mu)
+        double mu = smooth_iters / 50.0; 
         
-        // Wrap around smoothly using the fractional part
+        // 3. Determine the bounding palette indices and fractional blend (t)
         int color1_idx = ((int)mu) % NUM_COLORS;
         int color2_idx = (color1_idx + 1) % NUM_COLORS;
-        double t = mu - (int)mu; // How far we are between color1 and color2 (0.0 to 1.0)
+        double t = mu - (int)mu;
 
         // Linear interpolation (lerp) formula: A + t * (B - A)
         data[pixel_index]     = (unsigned char)(bgp_palette[color1_idx][0] + t * (bgp_palette[color2_idx][0] - bgp_palette[color1_idx][0])); // R
@@ -87,7 +94,12 @@ int main()
     dim3 gridSize((WIDTH + blockSize.x - 1) / blockSize.x, 
                   (HEIGHT + blockSize.y - 1) / blockSize.y);
 
-    mandelbrotKernel<<<gridSize, blockSize>>>(d_data, WIDTH, HEIGHT);
+    // Coordinates for Seahorse Valley
+    double cameraX = -0.743643887037151;
+    double cameraY = 0.131825904205330;
+    double cameraZoom = 0.002;
+
+    mandelbrotKernel<<<gridSize, blockSize>>>(d_data, WIDTH, HEIGHT, cameraX, cameraY, cameraZoom);
     cudaDeviceSynchronize();
     cudaMemcpy(data, d_data, bytes, cudaMemcpyDeviceToHost);
 
