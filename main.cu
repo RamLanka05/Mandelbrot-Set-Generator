@@ -95,9 +95,14 @@ int main()
                   (HEIGHT + blockSize.y - 1) / blockSize.y);
 
     // Coordinates for Seahorse Valley
-    double cameraX = -0.743643887037151;
-    double cameraY = 0.131825904205330;
-    double cameraZoom = 0.002;
+    // double cameraX = -0.743643887037151;
+    // double cameraY = 0.131825904205330;
+    // double cameraZoom = 0.002;
+
+    // Coordinates for Elephant Valley
+    double cameraX = 0;
+    double cameraY = 0.0;
+    double cameraZoom = -10;
 
     mandelbrotKernel<<<gridSize, blockSize>>>(d_data, WIDTH, HEIGHT, cameraX, cameraY, cameraZoom);
     cudaDeviceSynchronize();
